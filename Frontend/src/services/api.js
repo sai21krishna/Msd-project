@@ -3,6 +3,11 @@ import axios from 'axios';
 // Configure axios defaults
 const API_BASE_URL = process.env.REACT_APP_BACKEND_BASEURL || 'http://localhost:5001/api';
 
+// Debug: Log the API base URL
+console.log('🔧 API Configuration:');
+console.log('  REACT_APP_BACKEND_BASEURL from env:', process.env.REACT_APP_BACKEND_BASEURL);
+console.log('  Final API_BASE_URL:', API_BASE_URL);
+
 const apiClient = axios.create({
   baseURL: API_BASE_URL,
   headers: {
@@ -13,6 +18,11 @@ const apiClient = axios.create({
 // Request interceptor to add auth token
 apiClient.interceptors.request.use(
   (config) => {
+    // Debug: Log the full request URL
+    const fullUrl = `${config.baseURL}${config.url}`;
+    console.log(`📤 API Request: ${config.method?.toUpperCase()} ${fullUrl}`);
+    console.log('   Request data:', config.data);
+    
     const token = localStorage.getItem('token');
     if (token) {
       config.headers.Authorization = `Bearer ${token}`;
@@ -26,8 +36,21 @@ apiClient.interceptors.request.use(
 
 // Response interceptor to handle errors
 apiClient.interceptors.response.use(
-  (response) => response,
+  (response) => {
+    console.log(`✅ API Response: ${response.status} ${response.config.method?.toUpperCase()} ${response.config.url}`);
+    return response;
+  },
   (error) => {
+    if (error.response) {
+      console.error(`❌ API Error: ${error.response.status} ${error.config?.method?.toUpperCase()} ${error.config?.url}`);
+      console.error('   Error data:', error.response.data);
+    } else if (error.request) {
+      console.error(`❌ Network Error: No response received for ${error.config?.method?.toUpperCase()} ${error.config?.url}`);
+      console.error('   Error:', error.message);
+    } else {
+      console.error('❌ Request Error:', error.message);
+    }
+    
     if (error.response?.status === 401) {
       // Token expired or invalid
       localStorage.removeItem('token');
