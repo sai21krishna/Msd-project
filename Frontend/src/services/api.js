@@ -1,7 +1,7 @@
 import axios from 'axios';
 
 // Configure axios defaults
-const API_BASE_URL = process.env.REACT_APP_BACKEND_BASEURL || 'http://localhost:5001/api';
+const API_BASE_URL = process.env.REACT_APP_BACKEND_BASEURL || 'https://msd-project-ashy-six.vercel.app/api';
 
 // Debug: Log the API base URL
 console.log('🔧 API Configuration:');
