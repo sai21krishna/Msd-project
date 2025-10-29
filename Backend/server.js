@@ -97,7 +97,7 @@ app.get('/', (req, res) => {
   res.status(200).json({ 
     success: true,
     message: 'Smart Medicine Backend API',
-    version: '1.0.0',
+    version: '1.0.1',
     endpoints: {
       health: 'GET /health',
       auth: {
