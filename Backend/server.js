@@ -34,8 +34,16 @@ app.use(express.urlencoded({ extended: true }));
 
 // Request logging middleware
 app.use((req, res, next) => {
-  console.log(`[${new Date().toISOString()}] ${req.method} ${req.url}`);
-  console.log('Request body:', req.body);
+  // Ignore browser requests for static assets
+  const ignorePaths = ['/favicon.ico', '/manifest.json', '/logo192.png', '/logo512.png', '/'];
+  const shouldLog = !ignorePaths.includes(req.url) || req.method !== 'GET';
+  
+  if (shouldLog) {
+    console.log(`\n🔵 [${new Date().toISOString()}] ${req.method} ${req.url}`);
+    if (Object.keys(req.body).length > 0) {
+      console.log('📦 Request body:', JSON.stringify(req.body, null, 2));
+    }
+  }
   next();
 });
 
@@ -63,6 +71,26 @@ app.use('/api/auth', authRoutes);
 console.log('✅ Auth routes registered at /api/auth');
 app.use('/api/medications', medicationRoutes);
 console.log('✅ Medication routes registered at /api/medications');
+
+// Root endpoint
+app.get('/', (req, res) => {
+  res.status(200).json({ 
+    success: true,
+    message: 'Smart Medicine Backend API',
+    version: '1.0.0',
+    endpoints: {
+      health: 'GET /health',
+      auth: {
+        signup: 'POST /api/auth/signup',
+        login: 'POST /api/auth/login',
+        profile: 'GET /api/auth/profile',
+        updateProfile: 'PUT /api/auth/profile',
+        changePassword: 'POST /api/auth/change-password',
+        logout: 'POST /api/auth/logout'
+      }
+    }
+  });
+});
 
 // Health check endpoint
 app.get('/health', (req, res) => {
