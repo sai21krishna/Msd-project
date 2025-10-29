@@ -27,6 +27,7 @@ const allowedOrigins = [
   'http://localhost:3000',
   'http://localhost:3001',
   'https://msd-project-1.vercel.app',
+  'https://msd-project-ashy-six.vercel.app',
   process.env.CLIENT_URL
 ].filter(Boolean);
 
