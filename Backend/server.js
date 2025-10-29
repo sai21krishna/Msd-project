@@ -32,6 +32,13 @@ app.use(cors({
 app.use(express.json({ limit: '10mb' }));
 app.use(express.urlencoded({ extended: true }));
 
+// Request logging middleware
+app.use((req, res, next) => {
+  console.log(`[${new Date().toISOString()}] ${req.method} ${req.url}`);
+  console.log('Request body:', req.body);
+  next();
+});
+
 // Connect to MongoDB
 if (!process.env.MONGODB_URI) {
   console.error('❌ MONGODB_URI environment variable is not set');
@@ -51,8 +58,11 @@ mongoose.connect(process.env.MONGODB_URI, {
 });
 
 // Routes
+console.log('📍 Registering routes...');
 app.use('/api/auth', authRoutes);
+console.log('✅ Auth routes registered at /api/auth');
 app.use('/api/medications', medicationRoutes);
+console.log('✅ Medication routes registered at /api/medications');
 
 // Health check endpoint
 app.get('/health', (req, res) => {
@@ -65,9 +75,19 @@ app.get('/health', (req, res) => {
 
 // Handle 404 errors
 app.use('*', (req, res) => {
+  console.log(`❌ 404 - Route not found: ${req.method} ${req.originalUrl}`);
   res.status(404).json({ 
     success: false, 
-    message: 'API endpoint not found' 
+    message: `API endpoint not found: ${req.method} ${req.originalUrl}`,
+    availableRoutes: [
+      'POST /api/auth/signup',
+      'POST /api/auth/login',
+      'GET /api/auth/profile',
+      'PUT /api/auth/profile',
+      'POST /api/auth/change-password',
+      'POST /api/auth/logout',
+      'GET /health'
+    ]
   });
 });
 
